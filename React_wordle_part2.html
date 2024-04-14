@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        * {
+            padding:auto;
+            margin:auto;
+            text-align:centre;
+        }
+        h1, div{
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+            color: rgb(39, 166, 245);
+            text-align: center;
+        }
+        #container {
+            margin:auto 0;
+            padding: 15px;
+        }
+        .wordle-board {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .wordle-row {
+            display: flex;
+        }
+        .square {
+            width: 40px;
+            height: 40px;
+            border: 1px solid black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 2px;
+            font-size: 24px;
+        }
+        .square:hover {background-color: rgb(225, 225, 225);}
+        
+        .green {
+            color: green;
+        }
+        .orange {
+            color: orange;
+        }
+        .red {
+            color: red;
+        }
+
+        .keyboard-container {
+            display: flex;
+            flex-direction: column;
+            font-family: Arial, sans-serif; 
+            font-size: 16px; 
+            margin-bottom: 20px;
+        }
+        .keyboard-button {
+            padding: 10px;
+            margin: 5px;
+        }
+        
+    </style>
+    <title>Wordle Board</title>
+</head>
+<body>
+    <h1>Wordle Game</h1>
+    <div id="container"></div>
+    <script type="text/babel">
+        // Function to create a square element
+        function Square({ face, color }) {
+            return <div className={`square ${color}`} tabIndex={0}>{face}</div>;
+        }
+
+        // Create the WordleBoard component
+        function WordleBoard() {
+            const words = ["might", "flood", "stray"]; // hard code the words
+            const answer = "moody"; 
+
+            // Function to calculate guess results for a word
+            const calculateGuessResult = (word) => {
+                const result = [];
+
+                // Iterate over each letter in the word
+                for (let i = 0; i < word.length; i++) {
+                    const letter = word[i];
+                    if (letter === answer[i]) {
+                        result.push('correct-letter');
+                    } else if (answer.includes(letter)) {
+                        result.push('correct-wrong-position');
+                    } else {
+                        result.push('incorrect-letter');
+                    }
+                }
+
+                return result;
+            };
+
+            return (
+                <div className="wordle-board">
+                    {Array.from({ length: 6 }, (_, rowIndex) => (
+                        <div key={rowIndex} className="wordle-row">
+                            {rowIndex < 3 ?
+                            words[rowIndex].toUpperCase().split('').map((letter, colIndex) => { // Convert word to uppercase
+                                const guessResult = calculateGuessResult(words[rowIndex]);
+                                let colorClass = '';
+                                switch (guessResult[colIndex]) {
+                                    case 'correct-letter':
+                                        colorClass = 'green';
+                                        break;
+                                    case 'correct-wrong-position':
+                                        colorClass = 'orange';
+                                        break;
+                                    case 'incorrect-letter':
+                                        colorClass = 'red';
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                return <Square key={colIndex} face={letter} color={colorClass} />;
+                            }) :
+                            Array.from({ length: 5 }, (_, colIndex) => (
+                                <Square key={colIndex} face="" color="" />
+                            ))
+                            }
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+
+        // Define the Keyboard component
+        function Keyboard() {
+            const keyboardLayout = [
+                ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
+                ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
+                ["Z", "X", "C", "V", "B", "N", "M"]
+            ];
+
+            return (
+                <div className="keyboard-container">
+                    {keyboardLayout.map((row, rowIndex) =>
+                        <div key={rowIndex} style={{ display: 'flex' }}>
+                            {row.map((key, keyIndex) =>
+                                <button key={keyIndex} className="keyboard-button">{key}</button>
+                            )}
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // Define the App component to render both WordleBoard and Keyboard
+        function App() {
+            return (
+                <div>
+                    <WordleBoard />
+                    <Keyboard />
+                </div>
+            );
+        }
+
+        // Render the App component to the container div in the HTML
+        ReactDOM.render(
+            <App />,
+            document.getElementById('container')
+        );
+    </script>
+</body>
+</html>
